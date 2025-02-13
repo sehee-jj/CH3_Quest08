@@ -17,6 +17,12 @@ public:
 	// Sets default values for this character's properties
 	ANBCCharacter();
 
+	UFUNCTION(BlueprintPure, Category = "Health")
+	int32 GetHealth() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Health")
+	void AddHealth(float Amount);
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	class USpringArmComponent* SpringArmComp;
@@ -24,16 +30,25 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	class UCameraComponent* CameraComp;
 
-	// Sprint 액션에 사용되는 변수
-	// 기본 스피드
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float NormalSpeed;
-	// 스피드 변화 값
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float SprintSpeedMultiplier;
-	// Sprint 상태일 때 스피드
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float SprintSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
+	float MaxHealth;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Health")
+	float Health;
+
+	UFUNCTION(BlueprintCallable, Category = "Health")
+	virtual void OnDeath();
+
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 public:
 

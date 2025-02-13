@@ -17,6 +17,10 @@ class QUEST08_API AMineItem : public ABaseItem
 public:
 	AMineItem();
 
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item|Component")
+	USphereComponent* ExplosionCollision;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mine")
 	float ExplosionDelay;
 
@@ -26,5 +30,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mine")
 	float ExplosionDamage;
 
+	FTimerHandle ExplosionTimerHandle;
+
 	virtual void ActivateItem(AActor*) override;
+
+	void Explode();
 };

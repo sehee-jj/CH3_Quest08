@@ -17,8 +17,8 @@ class QUEST08_API AHealingItem : public ABaseItem
 public:
 	AHealingItem();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	float HealAmount;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Healing")
+	int32 HealAmount;
 
 	virtual void ActivateItem(AActor*) override;
 };

@@ -9,7 +9,7 @@ ASmallCoinItem::ASmallCoinItem()
 	ItemType = "SmallCoin";
 }
 
-void ASmallCoinItem::ActivateItem(AActor*)
+void ASmallCoinItem::ActivateItem(AActor* Activator)
 {
-	DestroyItem();
+	Super::ActivateItem(Activator);
 }

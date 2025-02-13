@@ -22,6 +22,7 @@ class QUEST08_API IItemInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
+	UFUNCTION()
 	virtual void OnItemOverlap(
 		UPrimitiveComponent* OverlappedComp,
 		AActor* OtherActor,
@@ -29,6 +30,7 @@ public:
 		int32 OtherBodyIndex,
 		bool bFromSweep,
 		const FHitResult& SweepResult) = 0;
+	UFUNCTION()
 	virtual void OnItemEndOverlap(
 		UPrimitiveComponent* OverlappedComp,
 		AActor* OtherActor,

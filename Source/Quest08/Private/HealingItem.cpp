@@ -2,6 +2,7 @@
 
 
 #include "HealingItem.h"
+#include "NBCCharacter.h"
 
 AHealingItem::AHealingItem()
 {
@@ -9,7 +10,14 @@ AHealingItem::AHealingItem()
 	ItemType = "Healing";
 }
 
-void AHealingItem::ActivateItem(AActor*)
+void AHealingItem::ActivateItem(AActor* Activator)
 {
-	DestroyItem();
+	if (Activator && Activator->ActorHasTag("Player"))
+	{
+		if (ANBCCharacter* PlayerCharacter = Cast<ANBCCharacter>(Activator))
+		{
+			PlayerCharacter->AddHealth(HealAmount);
+		}
+		DestroyItem();
+	}
 }

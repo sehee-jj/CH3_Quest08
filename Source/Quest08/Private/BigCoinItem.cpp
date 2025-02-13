@@ -9,7 +9,7 @@ ABigCoinItem::ABigCoinItem()
 	ItemType = "BigCoin";
 }
 
-void ABigCoinItem::ActivateItem(AActor*)
+void ABigCoinItem::ActivateItem(AActor* Activator)
 {
-	DestroyItem();
+	Super::ActivateItem(Activator);
 }

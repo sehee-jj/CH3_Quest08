@@ -29,6 +29,40 @@ ANBCCharacter::ANBCCharacter()
 	SprintSpeed = NormalSpeed * SprintSpeedMultiplier;
 
 	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
+
+	MaxHealth = 100.0f;
+	Health = MaxHealth;
+}
+
+int32 ANBCCharacter::GetHealth() const
+{
+	return Health;
+}
+
+void ANBCCharacter::AddHealth(float Amount)
+{
+	Health = FMath::Clamp(Health + Amount, 0.0f, MaxHealth);
+	UE_LOG(LogTemp, Log, TEXT("Health increased to: %f"), Health);
+}
+
+void ANBCCharacter::OnDeath()
+{
+	UE_LOG(LogTemp, Error, TEXT("Character is Dead!"));
+}
+
+float ANBCCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	Health = FMath::Clamp(Health - DamageAmount, 0.0f, MaxHealth);
+	UE_LOG(LogTemp, Warning, TEXT("Health decreased to: %f"), Health);
+
+	if (Health <= 0.0f)
+	{
+		OnDeath();
+	}
+
+	return ActualDamage;
 }
 
 // Called to bind functionality to input
