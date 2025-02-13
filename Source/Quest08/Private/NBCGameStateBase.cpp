@@ -2,9 +2,14 @@
 
 
 #include "NBCGameStateBase.h"
-#include "Kismet/GameplayStatics.h"
+#include "NBCGameInstance.h"
+#include "NBCPlayerController.h"
 #include "SpawnVolume.h"
 #include "CoinItem.h"
+#include "Kismet/GameplayStatics.h"
+#include "Components/TextBlock.h"
+#include "Blueprint/UserWidget.h"
+
 
 ANBCGameStateBase::ANBCGameStateBase()
 {
@@ -20,7 +25,16 @@ void ANBCGameStateBase::BeginPlay()
 {
 	Super::BeginPlay();
 
+	UpdateHUD();
 	StartLevel();
+
+	GetWorldTimerManager().SetTimer(
+		HUDUpdateTimerHandle,
+		this,
+		&ANBCGameStateBase::UpdateHUD,
+		0.1f,
+		true
+	);
 }
 
 int32 ANBCGameStateBase::GetScore() const
@@ -30,11 +44,20 @@ int32 ANBCGameStateBase::GetScore() const
 
 void ANBCGameStateBase::AddScore(int32 Amount)
 {
-	Score += Amount;
+	if (UGameInstance* GameInstance = GetGameInstance())
+	{
+		UNBCGameInstance* NBCGameInstance = Cast<UNBCGameInstance>(GameInstance);
+
+		if (NBCGameInstance)
+		{
+			NBCGameInstance->AddToScore(Amount);
+		}
+	}
 }
 
 void ANBCGameStateBase::OnGameOver()
 {
+	UpdateHUD();
 	UE_LOG(LogTemp, Warning, TEXT("Game Over!!"));
 }
 
@@ -71,6 +94,8 @@ void ANBCGameStateBase::StartLevel()
 		LevelDuration,
 		false
 	);
+
+	UpdateHUD();
 
 	UE_LOG(LogTemp, Warning, TEXT("Level %d Start!, Spawned %d coin"),
 		CurrentLevelIndex + 1,
@@ -114,5 +139,40 @@ void ANBCGameStateBase::EndLevel()
 	else
 	{
 		OnGameOver();
+	}
+}
+
+void ANBCGameStateBase::UpdateHUD()
+{
+	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+	{
+		if(ANBCPlayerController* NBCPlayerController = Cast<ANBCPlayerController>(PlayerController))
+		{
+			if (UUserWidget* HUDWidget = NBCPlayerController->GetHUDWidget())
+			{
+				if (UTextBlock* TimeText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("Time"))))
+				{
+					float RemainingTime = GetWorldTimerManager().GetTimerRemaining(LevelTimerHandle);
+					TimeText->SetText(FText::FromString(FString::Printf(TEXT("Time : %.1f"), RemainingTime)));
+				}
+
+				if (UTextBlock* ScoreText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("Score"))))
+				{
+					if (UGameInstance* GameInstance = GetGameInstance())
+					{
+						UNBCGameInstance* NBCGameInstance = Cast<UNBCGameInstance>(GameInstance);
+						if (NBCGameInstance)
+						{
+							ScoreText->SetText(FText::FromString(FString::Printf(TEXT("Score : %d"), NBCGameInstance->TotalScore)));
+						}
+					}
+				}
+
+				if (UTextBlock* LevelIndexText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("Level"))))
+				{
+					LevelIndexText->SetText(FText::FromString(FString::Printf(TEXT("Level : %d"), CurrentLevelIndex + 1)));
+				}
+			}
+		}
 	}
 }
