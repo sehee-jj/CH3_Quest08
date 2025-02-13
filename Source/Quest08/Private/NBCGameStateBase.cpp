@@ -57,12 +57,34 @@ void ANBCGameStateBase::AddScore(int32 Amount)
 
 void ANBCGameStateBase::OnGameOver()
 {
-	UpdateHUD();
-	UE_LOG(LogTemp, Warning, TEXT("Game Over!!"));
+	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+	{
+		if (ANBCPlayerController* NBCPlayerController = Cast<ANBCPlayerController>(PlayerController))
+		{
+			NBCPlayerController->ShowMainMenu(true);
+		}
+	}
 }
 
 void ANBCGameStateBase::StartLevel()
 {
+	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+	{
+		if (ANBCPlayerController* NBCPlayerController = Cast<ANBCPlayerController>(PlayerController))
+		{
+			NBCPlayerController->ShowGameHUD();
+		}
+	}
+
+	if (UGameInstance* GameInstance = GetGameInstance())
+	{
+		UNBCGameInstance* NBCGameInstance = Cast<UNBCGameInstance>(GameInstance);
+		if (NBCGameInstance)
+		{
+			CurrentLevelIndex = NBCGameInstance->CurrentLevelIndex;
+		}
+	}
+
 	SpawnedCoinCount = 0;
 	CollectedCoinCount = 0;
 
@@ -71,12 +93,12 @@ void ANBCGameStateBase::StartLevel()
 
 	const int32 ItemToSpawn = 40;
 
-	for (int32 i = 0; i < ItemToSpawn; i++)
+	if (FoundVolumes.Num() > 0)
 	{
-		if (FoundVolumes.Num() > 0)
+		ASpawnVolume* SpawnVolume = Cast<ASpawnVolume>(FoundVolumes[0]);
+		if (SpawnVolume)
 		{
-			ASpawnVolume* SpawnVolume = Cast<ASpawnVolume>(FoundVolumes[0]);
-			if (SpawnVolume)
+			for (int32 i = 0; i < ItemToSpawn; i++)
 			{
 				AActor* SpawnedActor = SpawnVolume->SpawnRandomItem();
 				if (SpawnedActor && SpawnedActor->IsA(ACoinItem::StaticClass()))
@@ -94,12 +116,6 @@ void ANBCGameStateBase::StartLevel()
 		LevelDuration,
 		false
 	);
-
-	UpdateHUD();
-
-	UE_LOG(LogTemp, Warning, TEXT("Level %d Start!, Spawned %d coin"),
-		CurrentLevelIndex + 1,
-		SpawnedCoinCount);
 }
 
 void ANBCGameStateBase::OnLevelTimeUp()
